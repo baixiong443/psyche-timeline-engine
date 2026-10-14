@@ -26,6 +26,7 @@ Psyche Timeline Engine 是一个面向 SillyTavern 的分支感知剧情状态�
 - 平行线模式在分歧度达到 `0.5` 后停止注入原作事件，自适应与跟随原作模式在达到 `0.75` 后停止注入；自由剧情始终不注入锚点。已被标记为 `active` 的事件不受影响。
 - `StoryEvent.scope` 区分世界级进程与角色际事件：`world`（天灾、战争、瘟疫等）不受分歧度抑制，只由显式 `forbiddenWhen`/`preconditions` 决定是否发生，因此分支消除前因时仍可被提前阻止；省略或未识别时按 `interpersonal` 处理，旧故事包行为不变。
 - 注入候选受 `canonicalOrder` 前瞻窗口约束（默认 25）：游标之后的远处事件不会作为“附近锚点”提前注入，从而避免远期剧透。窗口是资格闸门而非排序偏好，因为跟随模式下硬锚点的基础分（90）高于整个邻近度区间（80）；`world` 事件同样受窗口约束——两百里外的灾难依然是剧透。
+- 世界事件可自带时间闸门，从而不依赖玩家行动自行发生：`preconditions` 配合 `{"var":"turn"}`（默认，每回合必定递增）或 `{"var":"time.relativeMinutes"}`（仅当原文明确给出可量化时长）。`turn` 是可靠时钟；`time.relativeMinutes` 日常对话可能长期为 `0`，不宜作默认。时间闸门决定“到时间了吗”，`forbiddenWhen` 决定“前因是否已被消除”，两者配合才既按时发生又可被阻止。
 - 原作事件首次进入 `completed_canonical` 时会从只读 StoryPlan 自动应用声明的 `effects`；`completed_adapted` 只采用聊天中实际提取的变化，不会强行套用原作精确后果。
 - 规范完成与适配完成都会把该事件仍为 `pending` 的 `narrativePurposes` 自动标记为 `fulfilled`；锁定路径或显式状态优先。
 - `StoryEvent.effects` 不允许包含 `transition_canon_event`，避免递归完成和事件效果循环。

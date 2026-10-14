@@ -284,6 +284,7 @@ export function buildSourceWindowCompilationPrompt(
     `- preconditions/forbiddenWhen 用当前状态可验证字段；无法安全执行时宁可减少事件。\n` +
     `- scope 标明事件属于谁：世界级进程（天灾、战争、瘟疫、政权更迭）用 "world"；由角色行为与关系驱动的事件用 "interpersonal"。\n` +
     `- scope=world 的事件不会因为剧情分歧被自动放弃，所以必须用它真正的前因写 forbiddenWhen（例如堤坝已修复、敌军已被歼灭），不能用分歧度代替因果。\n` +
+    `- scope=world 的事件还需要时间闸门，否则会一直停在 locked：首选回合数 {"preconditions":{">=":[{"var":"turn"},5]}}，它每回合必定递增。仅当原文明确给出可量化时长时才用 {"var":"time.relativeMinutes"}——它只在提取器确认「确实过去了一段可量化时间」时递增，普通对话可能长期停在 0。不要编造证据不支持的间隔。\n` +
     `- revealPolicy 默认 eligible_only；秘密信息在条件满足前不能出现在事件摘要。\n` +
     `- 保留原作叙事目的，但允许 delay/relocation/substitution 必须按事件性质分别判断。\n` +
     `${feedback ? `\n上一版校验错误，必须修复：\n${feedback}\n` : ''}` +

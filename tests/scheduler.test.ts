@@ -174,4 +174,74 @@ describe('canon scheduler', () => {
     projection.canonCursor.eventOrder = 190;
     expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id)).toEqual(['far-flood']);
   });
+
+  it('drives a world event from a time precondition without any player action', () => {
+    // The world clock is not a new mechanism: a deterministic `preconditions`
+    // rule over `time.relativeMinutes` already makes a world event fire on its
+    // own schedule, independent of what the branch does.
+    //
+    // Caveat: `time.relativeMinutes` only advances when the extractor confirms a
+    // quantifiable duration really elapsed, so it can stay at 0 for a long time
+    // in ordinary chat. `turn` is the reliable default clock; this test pins the
+    // mechanism, not a recommendation to gate on minutes.
+    const tide = storyEvent({
+      id: 'spring-tide',
+      scope: 'world',
+      kind: 'hard_anchor',
+      rigidity: 'hard',
+      preconditions: { '>=': [{ var: 'time.relativeMinutes' }, 1440] }
+    });
+    const plan = storyPlan([tide]);
+    const projection = createEmptyProjection('story-1');
+
+    // Not yet due: reported as delayed rather than eligible.
+    projection.time.relativeMinutes = 1439;
+    expect(scheduleStoryEvents(plan, projection, 'parallel')).toEqual([]);
+
+    // Due: the world event surfaces on its own, even on a fully diverged branch.
+    projection.time.relativeMinutes = 1440;
+    projection.divergence.structuralLevel = 1;
+    expect(scheduleStoryEvents(plan, projection, 'parallel').map(item => item.event.id))
+      .toEqual(['spring-tide']);
+  });
+
+  it('drives a world event from the turn counter', () => {
+    // `turn` increments on every applied record, so it is the clock that always
+    // ticks during ordinary play.
+    const rebellion = storyEvent({
+      id: 'rebellion',
+      scope: 'world',
+      preconditions: { '>=': [{ var: 'turn' }, 5] }
+    });
+    const plan = storyPlan([rebellion]);
+    const projection = createEmptyProjection('story-1');
+
+    projection.turn = 4;
+    expect(scheduleStoryEvents(plan, projection, 'follow')).toEqual([]);
+    projection.turn = 5;
+    expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id))
+      .toEqual(['rebellion']);
+  });
+
+  it('combines a time gate with a causal gate on the same world event', () => {
+    // Time decides "is it due"; forbiddenWhen decides "was the cause removed".
+    const flood = storyEvent({
+      id: 'seasonal-flood',
+      scope: 'world',
+      preconditions: { '>=': [{ var: 'time.relativeMinutes' }, 1440] },
+      forbiddenWhen: { '==': [{ var: 'flags.levee_repaired' }, true] }
+    });
+    const plan = storyPlan([flood]);
+    const projection = createEmptyProjection('story-1');
+    projection.time.relativeMinutes = 1440;
+
+    expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id))
+      .toEqual(['seasonal-flood']);
+
+    // Due but causally prevented -> invalidated, not eligible.
+    projection.flags.levee_repaired = true;
+    expect(scheduleStoryEvents(plan, projection, 'follow')).toEqual([]);
+    expect(findInvalidatedEvents(plan, projection, 'follow').map(item => item.event.id))
+      .toEqual(['seasonal-flood']);
+  });
 });
