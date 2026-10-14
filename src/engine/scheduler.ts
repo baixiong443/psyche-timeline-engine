@@ -1,0 +1,123 @@
+import { DEFAULT_MAX_CANDIDATE_EVENTS } from '../constants';
+import type {
+  ParticipationMode,
+  SchedulerCandidate,
+  StoryEvent,
+  StoryPlan,
+  StoryProjection
+} from '../model/types';
+import { evaluateCondition, validateConditionRule } from './conditions';
+
+const TERMINAL_EVENT_STATES = new Set([
+  'completed_canonical', 'completed_adapted', 'skipped', 'invalidated'
+]);
+
+function rigidityScore(event: StoryEvent, mode: ParticipationMode): number {
+  if (mode === 'free') return -10_000;
+  if (event.rigidity === 'hard') return mode === 'follow' ? 60 : mode === 'adaptive' ? 42 : 20;
+  if (event.rigidity === 'soft') return mode === 'follow' ? 36 : mode === 'adaptive' ? 30 : 12;
+  return mode === 'follow' ? 18 : mode === 'adaptive' ? 14 : 8;
+}
+
+function kindScore(event: StoryEvent): number {
+  switch (event.kind) {
+    case 'hard_anchor': return 30;
+    case 'soft_anchor': return 20;
+    case 'character_beat': return 18;
+    case 'transition': return 8;
+    case 'atmosphere': return 5;
+    case 'chance': return 2;
+  }
+}
+
+function participantScore(event: StoryEvent, projection: StoryProjection): number {
+  return event.participants.reduce((score, id) => score + (projection.characters[id]?.present ? 5 : -2), 0);
+}
+
+function divergenceSuppressesCanon(projection: StoryProjection, mode: ParticipationMode): boolean {
+  const level = projection.divergence.structuralLevel;
+  return (mode === 'parallel' && level >= 0.5)
+    || ((mode === 'adaptive' || mode === 'follow') && level >= 0.75);
+}
+
+function divergencePenalty(projection: StoryProjection, mode: ParticipationMode): number {
+  const multiplier = mode === 'follow' ? 10 : mode === 'adaptive' ? 80 : 120;
+  return projection.divergence.structuralLevel * multiplier;
+}
+
+export function evaluateStoryEvent(
+  event: StoryEvent,
+  projection: StoryProjection,
+  mode: ParticipationMode
+): SchedulerCandidate | null {
+  const storedState = projection.canonEvents[event.id];
+  if (storedState && TERMINAL_EVENT_STATES.has(storedState)) return null;
+  if (storedState === 'delayed') {
+    return { event, score: -1_000, state: 'delayed', reasons: ['Event was manually delayed.'] };
+  }
+  if (mode === 'free' || event.revealPolicy === 'never') return null;
+  if (event.revealPolicy === 'active_only' && storedState !== 'active') return null;
+  if (divergenceSuppressesCanon(projection, mode) && storedState !== 'active') return null;
+
+  const preconditionValidation = validateConditionRule(event.preconditions);
+  const forbiddenValidation = validateConditionRule(event.forbiddenWhen);
+  if (!preconditionValidation.valid || !forbiddenValidation.valid) {
+    return {
+      event,
+      score: -10_000,
+      state: 'invalidated',
+      reasons: [...preconditionValidation.errors, ...forbiddenValidation.errors]
+    };
+  }
+
+  if (event.forbiddenWhen && evaluateCondition(event.forbiddenWhen, projection)) {
+    return { event, score: -5_000, state: 'invalidated', reasons: ['A forbidden condition is true.'] };
+  }
+
+  if (event.preconditions && !evaluateCondition(event.preconditions, projection)) {
+    return { event, score: -1_000, state: 'delayed', reasons: ['Preconditions are not satisfied.'] };
+  }
+
+  const distance = Math.max(0, event.canonicalOrder - projection.canonCursor.eventOrder);
+  const proximityScore = Math.max(-40, 40 - distance * 2);
+  const pendingPurposeCount = event.narrativePurposes.filter(
+    id => (projection.narrativePurposes[id] ?? 'pending') === 'pending'
+  ).length;
+  const score = rigidityScore(event, mode)
+    + kindScore(event)
+    + participantScore(event, projection)
+    + proximityScore
+    + pendingPurposeCount * 6
+    - divergencePenalty(projection, mode);
+
+  return {
+    event,
+    score,
+    state: 'eligible',
+    reasons: [
+      `canonical distance ${distance}`,
+      `${pendingPurposeCount} pending narrative purpose(s)`,
+      `branch divergence ${projection.divergence.structuralLevel}`
+    ]
+  };
+}
+
+export function scheduleStoryEvents(
+  plan: StoryPlan,
+  projection: StoryProjection,
+  mode: ParticipationMode,
+  limit = DEFAULT_MAX_CANDIDATE_EVENTS
+): SchedulerCandidate[] {
+  const safeLimit = Math.max(0, Math.min(10, Math.trunc(limit)));
+  return plan.events
+    .map(event => evaluateStoryEvent(event, projection, mode))
+    .filter((candidate): candidate is SchedulerCandidate => candidate?.state === 'eligible')
+    .sort((left, right) => right.score - left.score || left.event.canonicalOrder - right.event.canonicalOrder)
+    .slice(0, safeLimit);
+}
+
+export function findInvalidatedEvents(plan: StoryPlan, projection: StoryProjection, mode: ParticipationMode): SchedulerCandidate[] {
+  return plan.events
+    .map(event => evaluateStoryEvent(event, projection, mode))
+    .filter((candidate): candidate is SchedulerCandidate => candidate?.state === 'invalidated');
+}

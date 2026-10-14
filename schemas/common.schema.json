@@ -1,0 +1,337 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psyche-timeline.local/schemas/common.schema.json",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "not": { "pattern": "(^|\\.)(__proto__|prototype|constructor)(\\.|$)" }
+    },
+    "jsonValue": {
+      "oneOf": [
+        { "type": ["string", "number", "boolean", "null"] },
+        { "type": "array", "items": { "$ref": "#/$defs/jsonValue" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } }
+      ]
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["area", "place", "position"],
+      "properties": {
+        "area": { "type": "string" },
+        "place": { "type": "string" },
+        "position": { "type": "string" }
+      }
+    },
+    "projection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "storyId", "turn", "canonCursor", "time", "location", "characters", "relationships", "inventory", "facts", "knowledge", "flags", "canonEvents", "narrativePurposes", "openThreads", "custom", "lockedPaths", "divergence"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "storyId": { "$ref": "#/$defs/id" },
+        "turn": { "type": "integer", "minimum": 0 },
+        "canonCursor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["chapterId", "sceneId", "eventOrder"],
+          "properties": {
+            "chapterId": { "type": "string" },
+            "sceneId": { "type": "string" },
+            "eventOrder": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "time": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["absolute", "relativeMinutes"],
+          "properties": {
+            "absolute": { "type": ["string", "null"] },
+            "relativeMinutes": { "type": "number" }
+          }
+        },
+        "location": { "$ref": "#/$defs/location" },
+        "characters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["present"],
+            "properties": {
+              "present": { "type": "boolean" },
+              "location": { "$ref": "#/$defs/location" },
+              "mood": { "type": "array", "items": { "type": "string" } },
+              "activity": { "type": ["string", "null"] },
+              "physical": { "type": "array", "items": { "type": "string" } },
+              "outfit": { "type": "object", "additionalProperties": { "type": ["string", "null"] } },
+              "custom": { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } }
+            }
+          }
+        },
+        "relationships": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pairId", "stage", "directions", "axes"],
+            "properties": {
+              "pairId": { "$ref": "#/$defs/id" },
+              "stage": { "type": "string" },
+              "directions": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["toward", "stance", "wants", "secrets"],
+                  "properties": {
+                    "toward": { "$ref": "#/$defs/id" },
+                    "stance": { "type": "array", "items": { "type": "string" } },
+                    "wants": { "type": "array", "items": { "type": "string" } },
+                    "secrets": { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              },
+              "axes": { "type": "object", "additionalProperties": { "type": "number" } }
+            }
+          }
+        },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["count"],
+            "properties": {
+              "count": { "type": "integer", "minimum": 0 },
+              "description": { "type": "string" },
+              "ownerId": { "$ref": "#/$defs/id" }
+            }
+          }
+        },
+        "facts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["truth", "status", "evidenceRefs"],
+            "properties": {
+              "truth": { "type": "string" },
+              "status": { "enum": ["true", "false", "unknown"] },
+              "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "knowledge": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["state"],
+              "properties": {
+                "state": { "enum": ["knows", "suspects", "believes_false", "unaware", "hiding"] },
+                "sourceRecordId": { "type": "string" },
+                "perceivedTruth": { "type": "string" }
+              }
+            }
+          }
+        },
+        "flags": { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } },
+        "canonEvents": { "type": "object", "additionalProperties": { "$ref": "#/$defs/canonEventStatus" } },
+        "narrativePurposes": { "type": "object", "additionalProperties": { "enum": ["pending", "fulfilled", "abandoned"] } },
+        "openThreads": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title", "status", "evidenceRefs"],
+            "properties": {
+              "title": { "type": "string" },
+              "status": { "enum": ["open", "resolved", "abandoned"] },
+              "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "custom": { "type": "object", "additionalProperties": { "$ref": "#/$defs/jsonValue" } },
+        "lockedPaths": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 240 } },
+        "divergence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["structuralLevel", "summary"],
+          "properties": {
+            "structuralLevel": { "type": "number", "minimum": 0, "maximum": 1 },
+            "summary": { "type": "string" }
+          }
+        }
+      }
+    },
+    "canonEventStatus": {
+      "enum": ["locked", "eligible", "active", "completed_canonical", "completed_adapted", "delayed", "skipped", "invalidated"]
+    },
+    "operationBase": {
+      "type": "object",
+      "required": ["id", "type", "confidence", "evidenceIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidenceIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "domainOperation": {
+      "oneOf": [
+        { "$ref": "#/$defs/advanceTimeOperation" },
+        { "$ref": "#/$defs/setTimeOperation" },
+        { "$ref": "#/$defs/moveLocationOperation" },
+        { "$ref": "#/$defs/characterPresenceOperation" },
+        { "$ref": "#/$defs/characterStateOperation" },
+        { "$ref": "#/$defs/addFactOperation" },
+        { "$ref": "#/$defs/setKnowledgeOperation" },
+        { "$ref": "#/$defs/relationshipStageOperation" },
+        { "$ref": "#/$defs/relationshipAttitudeOperation" },
+        { "$ref": "#/$defs/relationshipAxisOperation" },
+        { "$ref": "#/$defs/inventoryOperation" },
+        { "$ref": "#/$defs/divergenceOperation" },
+        { "$ref": "#/$defs/setFlagOperation" },
+        { "$ref": "#/$defs/openThreadOperation" },
+        { "$ref": "#/$defs/resolveThreadOperation" },
+        { "$ref": "#/$defs/canonTransitionOperation" },
+        { "$ref": "#/$defs/purposeOperation" }
+      ]
+    },
+    "timelineOperation": {
+      "oneOf": [
+        { "$ref": "#/$defs/domainOperation" },
+        { "$ref": "#/$defs/setLockedPathsOperation" }
+      ]
+    },
+    "advanceTimeOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["minutes"], "properties": { "type": { "const": "advance_time" }, "minutes": { "type": "number", "minimum": -525600, "maximum": 525600 } } }], "unevaluatedProperties": false },
+    "setTimeOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["absolute"], "properties": { "type": { "const": "set_time" }, "absolute": { "type": ["string", "null"] } } }], "unevaluatedProperties": false },
+    "moveLocationOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["location"], "properties": { "type": { "const": "move_location" }, "location": { "$ref": "#/$defs/location" } } }], "unevaluatedProperties": false },
+    "characterPresenceOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["characterId", "present"], "properties": { "type": { "const": "set_character_presence" }, "characterId": { "$ref": "#/$defs/id" }, "present": { "type": "boolean" } } }], "unevaluatedProperties": false },
+    "characterStateOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["characterId", "field", "value"], "properties": { "type": { "const": "set_character_state" }, "characterId": { "$ref": "#/$defs/id" }, "field": { "enum": ["mood", "activity", "physical", "outfit", "custom"] }, "value": { "$ref": "#/$defs/jsonValue" } } }], "unevaluatedProperties": false },
+    "addFactOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["factId", "fact"], "properties": { "type": { "const": "add_fact" }, "factId": { "$ref": "#/$defs/id" }, "fact": { "type": "object", "additionalProperties": false, "required": ["truth", "status", "evidenceRefs"], "properties": { "truth": { "type": "string" }, "status": { "enum": ["true", "false", "unknown"] }, "evidenceRefs": { "type": "array", "items": { "type": "string" } } } } } }], "unevaluatedProperties": false },
+    "setKnowledgeOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["characterId", "factId", "state"], "properties": { "type": { "const": "set_knowledge" }, "characterId": { "$ref": "#/$defs/id" }, "factId": { "$ref": "#/$defs/id" }, "state": { "enum": ["knows", "suspects", "believes_false", "unaware", "hiding"] }, "perceivedTruth": { "type": "string" } } }], "unevaluatedProperties": false },
+    "relationshipStageOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["pairId", "stage"], "properties": { "type": { "const": "set_relationship_stage" }, "pairId": { "$ref": "#/$defs/id" }, "stage": { "type": "string" } } }], "unevaluatedProperties": false },
+    "relationshipAttitudeOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["pairId", "fromCharacterId", "towardCharacterId", "stance"], "properties": { "type": { "const": "set_relationship_attitude" }, "pairId": { "$ref": "#/$defs/id" }, "fromCharacterId": { "$ref": "#/$defs/id" }, "towardCharacterId": { "$ref": "#/$defs/id" }, "stance": { "type": "array", "items": { "type": "string" } }, "wants": { "type": "array", "items": { "type": "string" } }, "secrets": { "type": "array", "items": { "type": "string" } } } }], "unevaluatedProperties": false },
+    "relationshipAxisOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["pairId", "axis", "delta"], "properties": { "type": { "const": "change_relationship_axis" }, "pairId": { "$ref": "#/$defs/id" }, "axis": { "$ref": "#/$defs/id" }, "delta": { "type": "number", "minimum": -1000000, "maximum": 1000000 } } }], "unevaluatedProperties": false },
+    "inventoryOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["itemId", "delta"], "properties": { "type": { "const": "change_inventory" }, "itemId": { "$ref": "#/$defs/id" }, "delta": { "type": "integer", "minimum": -1000000, "maximum": 1000000 }, "description": { "type": "string" }, "ownerId": { "$ref": "#/$defs/id" } } }], "unevaluatedProperties": false },
+    "divergenceOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["structuralLevel", "summary"], "properties": { "type": { "const": "set_divergence" }, "structuralLevel": { "type": "number", "minimum": 0, "maximum": 1 }, "summary": { "type": "string", "maxLength": 2000 } } }], "unevaluatedProperties": false },
+    "setFlagOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["flag", "value"], "properties": { "type": { "const": "set_flag" }, "flag": { "$ref": "#/$defs/id" }, "value": { "$ref": "#/$defs/jsonValue" } } }], "unevaluatedProperties": false },
+    "openThreadOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["threadId", "title"], "properties": { "type": { "const": "open_thread" }, "threadId": { "$ref": "#/$defs/id" }, "title": { "type": "string" } } }], "unevaluatedProperties": false },
+    "resolveThreadOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["threadId", "status"], "properties": { "type": { "const": "resolve_thread" }, "threadId": { "$ref": "#/$defs/id" }, "status": { "enum": ["resolved", "abandoned"] } } }], "unevaluatedProperties": false },
+    "canonTransitionOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["eventId", "status"], "properties": { "type": { "const": "transition_canon_event" }, "eventId": { "$ref": "#/$defs/id" }, "status": { "$ref": "#/$defs/canonEventStatus" } } }], "unevaluatedProperties": false },
+    "purposeOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["purposeId", "status"], "properties": { "type": { "const": "set_narrative_purpose" }, "purposeId": { "$ref": "#/$defs/id" }, "status": { "enum": ["pending", "fulfilled", "abandoned"] } } }], "unevaluatedProperties": false },
+    "setLockedPathsOperation": { "allOf": [{ "$ref": "#/$defs/operationBase" }, { "type": "object", "required": ["paths"], "properties": { "type": { "const": "set_locked_paths" }, "paths": { "type": "array", "uniqueItems": true, "maxItems": 200, "items": { "type": "string", "minLength": 1, "maxLength": 240 } } } }], "unevaluatedProperties": false },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source", "quote", "claim"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "source": { "enum": ["user", "assistant", "canon"] },
+        "quote": { "type": "string" },
+        "claim": { "type": "string" }
+      }
+    },
+    "violation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message", "evidenceIds"],
+      "properties": {
+        "code": { "$ref": "#/$defs/id" },
+        "severity": { "enum": ["info", "warning", "error"] },
+        "message": { "type": "string" },
+        "evidenceIds": { "type": "array", "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "storyEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "chapterId", "sceneId", "canonicalOrder", "kind", "rigidity", "summary", "participants", "effects", "narrativePurposes", "evidenceRefs", "revealPolicy", "adaptation"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "chapterId": { "type": "string" },
+        "sceneId": { "type": "string" },
+        "canonicalOrder": { "type": "integer", "minimum": 0 },
+        "kind": { "enum": ["hard_anchor", "soft_anchor", "character_beat", "transition", "atmosphere", "chance"] },
+        "rigidity": { "enum": ["hard", "soft", "flexible"] },
+        "summary": { "type": "string" },
+        "participants": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "preconditions": { "$ref": "#/$defs/jsonValue" },
+        "forbiddenWhen": { "$ref": "#/$defs/jsonValue" },
+        "effects": { "type": "array", "items": { "$ref": "#/$defs/domainOperation" } },
+        "narrativePurposes": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+        "revealPolicy": { "enum": ["eligible_only", "active_only", "never"] },
+        "adaptation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowDelay", "allowRelocation", "allowSubstitution"],
+          "properties": {
+            "allowDelay": { "type": "boolean" },
+            "allowRelocation": { "type": "boolean" },
+            "allowSubstitution": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "storyPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "storyId", "title", "initialState", "events"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "storyId": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "initialState": { "$ref": "#/$defs/projection" },
+        "events": { "type": "array", "items": { "$ref": "#/$defs/storyEvent" } }
+      }
+    },
+    "turnRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "recordId", "parentRecordId", "userMessageId", "assistantMessageId", "swipeId", "inputHash", "outputHash", "baseProjectionHash", "operations", "evidence", "audit", "application", "checkpoint", "projectionHash", "createdAt"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "enum": ["extracted", "manual"] },
+        "recordId": { "$ref": "#/$defs/id" },
+        "parentRecordId": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "userMessageId": { "$ref": "#/$defs/id" },
+        "assistantMessageId": { "$ref": "#/$defs/id" },
+        "swipeId": { "type": "integer", "minimum": 0 },
+        "inputHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "outputHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "baseProjectionHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "operations": { "type": "array", "items": { "$ref": "#/$defs/timelineOperation" } },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+        "audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "status", "violations", "model"],
+          "properties": {
+            "mode": { "enum": ["off", "standard", "strict"] },
+            "status": { "enum": ["unreviewed", "pending", "passed", "warning", "failed", "stale"] },
+            "violations": { "type": "array", "items": { "$ref": "#/$defs/violation" } },
+            "model": { "type": ["string", "null"] }
+          }
+        },
+        "application": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "appliedAt"],
+          "properties": {
+            "status": { "enum": ["pending_user", "applied", "rejected", "stale"] },
+            "appliedAt": { "type": ["integer", "null"], "minimum": 0 }
+          }
+        },
+        "checkpoint": { "oneOf": [{ "$ref": "#/$defs/projection" }, { "type": "null" }] },
+        "projectionHash": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" },
+        "createdAt": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

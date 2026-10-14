@@ -1,0 +1,13 @@
+export const EXTENSION_KEY = 'psyche_timeline';
+export const MESSAGE_FIELD = 'psyche_timeline';
+export const CARD_EXTENSION_KEY = 'psyche_timeline';
+export const PROMPT_KEY = 'psyche_timeline_state';
+export const PACKAGE_DB_NAME = 'psyche-timeline-engine';
+export const PACKAGE_DB_VERSION = 1;
+export const SOURCE_DB_NAME = 'psyche-timeline-source';
+export const SOURCE_DB_VERSION = 2;
+export const DEFAULT_INJECTION_TOKEN_BUDGET = 1200;
+export const DEFAULT_MAX_CANDIDATE_EVENTS = 3;
+export const CHECKPOINT_INTERVAL = 25;
+export const SOURCE_COMPILATION_MAX_ATTEMPTS = 3;
+export const SOURCE_COMPILATION_STALE_MS = 10 * 60 * 1000;

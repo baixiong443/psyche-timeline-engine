@@ -1,0 +1,37 @@
+{
+  "name": "psyche-timeline-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Branch-aware canon timeline, story state, and audit extension for SillyTavern",
+  "scripts": {
+    "build": "webpack --mode production",
+    "build:example": "node scripts/build-example.mjs",
+    "build:group-fixture": "node scripts/build-group-isolation.mjs",
+    "dev": "webpack --mode development --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:integration:designer": "vitest run --config vitest.integration.config.ts",
+    "build:browser-fixture": "node --experimental-strip-types integration/buildBrowserFixture.mjs",
+    "test:watch": "vitest",
+    "validate": "npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "fflate": "^0.8.2",
+    "idb": "^8.0.3",
+    "json-logic-js": "^2.0.5",
+    "sillytavern-utils-lib": "^1.0.64"
+  },
+  "devDependencies": {
+    "@types/json-logic-js": "^2.0.8",
+    "@types/node": "^22.10.5",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^27.4.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.2.4",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  }
+}

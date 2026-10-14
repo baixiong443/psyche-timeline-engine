@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "story_id": "pte_group_isolation_v1",
+  "entry_point": {
+    "chapter_id": "chapter_01",
+    "scene_id": "waiting_hall"
+  },
+  "bindings": {
+    "character_id": "lin_yan",
+    "user_role_id": "traveler"
+  },
+  "mode_defaults": {
+    "participation": "adaptive",
+    "audit": "standard",
+    "auto_apply": false
+  }
+}

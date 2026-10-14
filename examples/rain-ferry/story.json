@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "storyId": "rain_ferry_demo",
+  "title": "潮痕驿站",
+  "initialState": {
+    "schemaVersion": 1,
+    "storyId": "rain_ferry_demo",
+    "turn": 0,
+    "canonCursor": { "chapterId": "chapter_01", "sceneId": "scene_01", "eventOrder": 0 },
+    "time": { "absolute": null, "relativeMinutes": 0 },
+    "location": { "area": "白潮河下游", "place": "潮痕驿站", "position": "候船厅" },
+    "characters": {
+      "lin_yan": {
+        "present": true,
+        "mood": ["警惕", "疲惫"],
+        "activity": "检查窗边的铜匣",
+        "physical": ["左手虎口有一道新擦伤"],
+        "outfit": { "outer": "深灰色旧雨衣" }
+      },
+      "traveler": { "present": true, "mood": ["困惑"], "activity": "刚进入候船厅" }
+    },
+    "relationships": {
+      "lin_yan_traveler": {
+        "pairId": "lin_yan_traveler",
+        "stage": "陌生人",
+        "directions": {
+          "lin_yan": {
+            "toward": "traveler",
+            "stance": ["戒备"],
+            "wants": ["确认来人的目的"],
+            "secrets": ["不愿提起失踪的摆渡人"]
+          }
+        },
+        "axes": { "trust": 0 }
+      }
+    },
+    "inventory": {
+      "copper_case": { "count": 1, "description": "锁舌被新近撬开的窄铜匣", "ownerId": "lin_yan" }
+    },
+    "facts": {
+      "ferryman_missing": {
+        "truth": "老摆渡人从昨夜起失踪。",
+        "status": "true",
+        "evidenceRefs": ["canon:chapter_01:paragraph_03"]
+      },
+      "case_contains_map": {
+        "truth": "铜匣夹层藏着一张标出旧河道的油纸图。",
+        "status": "true",
+        "evidenceRefs": ["canon:chapter_01:paragraph_11"]
+      }
+    },
+    "knowledge": {
+      "lin_yan": {
+        "ferryman_missing": { "state": "knows" },
+        "case_contains_map": { "state": "suspects" }
+      },
+      "traveler": {
+        "ferryman_missing": { "state": "unaware" },
+        "case_contains_map": { "state": "unaware" }
+      }
+    },
+    "flags": { "case_opened": false, "signal_heard": false, "floodgate_open": false },
+    "canonEvents": {
+      "opened_copper_case": "locked",
+      "heard_river_signal": "locked",
+      "chose_night_route": "locked"
+    },
+    "narrativePurposes": {
+      "introduce_mystery": "pending",
+      "establish_trust_test": "pending",
+      "open_route_choice": "pending"
+    },
+    "openThreads": {
+      "missing_ferryman": {
+        "title": "摆渡人去了哪里",
+        "status": "open",
+        "evidenceRefs": ["canon:chapter_01:paragraph_03"]
+      }
+    },
+    "custom": {},
+    "lockedPaths": ["facts.ferryman_missing.truth", "facts.case_contains_map.truth"],
+    "divergence": { "structuralLevel": 0, "summary": "尚未偏离原始起点。" }
+  },
+  "events": [
+    {
+      "id": "opened_copper_case",
+      "chapterId": "chapter_01",
+      "sceneId": "scene_01",
+      "canonicalOrder": 1,
+      "kind": "hard_anchor",
+      "rigidity": "hard",
+      "summary": "涨潮前，林砚设法打开被撬过的铜匣，并发现内部还有夹层。",
+      "participants": ["lin_yan", "traveler"],
+      "preconditions": { "===": [{ "var": "flags.case_opened" }, false] },
+      "effects": [
+        {
+          "id": "canon-open-case-flag",
+          "type": "set_flag",
+          "confidence": 1,
+          "evidenceIds": ["canon:chapter_01:paragraph_08"],
+          "flag": "case_opened",
+          "value": true
+        }
+      ],
+      "narrativePurposes": ["introduce_mystery"],
+      "evidenceRefs": ["canon:chapter_01:paragraph_08"],
+      "revealPolicy": "eligible_only",
+      "adaptation": { "allowDelay": true, "allowRelocation": false, "allowSubstitution": true }
+    },
+    {
+      "id": "heard_river_signal",
+      "chapterId": "chapter_01",
+      "sceneId": "scene_02",
+      "canonicalOrder": 2,
+      "kind": "soft_anchor",
+      "rigidity": "soft",
+      "summary": "河雾中传来三短一长的金属敲击声，像有人在旧航道上求援。",
+      "participants": ["lin_yan", "traveler"],
+      "preconditions": { "===": [{ "var": "flags.case_opened" }, true] },
+      "forbiddenWhen": { "===": [{ "var": "flags.floodgate_open" }, true] },
+      "effects": [
+        {
+          "id": "canon-signal-flag",
+          "type": "set_flag",
+          "confidence": 1,
+          "evidenceIds": ["canon:chapter_01:paragraph_14"],
+          "flag": "signal_heard",
+          "value": true
+        }
+      ],
+      "narrativePurposes": ["establish_trust_test"],
+      "evidenceRefs": ["canon:chapter_01:paragraph_14"],
+      "revealPolicy": "eligible_only",
+      "adaptation": { "allowDelay": true, "allowRelocation": true, "allowSubstitution": false }
+    },
+    {
+      "id": "chose_night_route",
+      "chapterId": "chapter_01",
+      "sceneId": "scene_03",
+      "canonicalOrder": 3,
+      "kind": "transition",
+      "rigidity": "flexible",
+      "summary": "两人必须决定沿新堤等待天亮，还是冒险进入油纸图标出的旧河道。",
+      "participants": ["lin_yan", "traveler"],
+      "preconditions": { "===": [{ "var": "flags.signal_heard" }, true] },
+      "effects": [],
+      "narrativePurposes": ["open_route_choice"],
+      "evidenceRefs": ["canon:chapter_01:paragraph_19"],
+      "revealPolicy": "eligible_only",
+      "adaptation": { "allowDelay": true, "allowRelocation": true, "allowSubstitution": true }
+    }
+  ]
+}

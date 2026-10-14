@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psyche-timeline.local/schemas/card-extension.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "story_id", "entry_point", "bindings"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "story_id": { "$ref": "common.schema.json#/$defs/id" },
+    "package_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "entry_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chapter_id", "scene_id"],
+      "properties": {
+        "chapter_id": { "type": "string", "minLength": 1 },
+        "scene_id": { "type": "string", "minLength": 1 },
+        "event_id": { "$ref": "common.schema.json#/$defs/id" }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["character_id"],
+      "properties": {
+        "character_id": { "$ref": "common.schema.json#/$defs/id" },
+        "user_role_id": { "$ref": "common.schema.json#/$defs/id" }
+      }
+    },
+    "mode_defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "participation": { "enum": ["follow", "adaptive", "parallel", "free"] },
+        "audit": { "enum": ["off", "standard", "strict"] },
+        "auto_apply": { "type": "boolean" }
+      }
+    },
+    "initial_state": { "$ref": "common.schema.json#/$defs/projection" },
+    "inline_plan": { "$ref": "common.schema.json#/$defs/storyPlan" }
+  }
+}

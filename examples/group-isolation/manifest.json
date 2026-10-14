@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "format": "psychebook",
+  "story_id": "pte_group_isolation_v1",
+  "title": "双角色知识隔离验收",
+  "version": "1.0.0",
+  "entry_point": {
+    "chapter_id": "chapter_01",
+    "scene_id": "waiting_hall"
+  },
+  "bindings": {
+    "character_id": "lin_yan",
+    "user_role_id": "traveler"
+  }
+}

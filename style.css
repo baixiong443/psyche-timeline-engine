@@ -1,0 +1,627 @@
+#psyche-timeline-settings {
+  width: 100%;
+}
+
+.psyche-wand-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.psyche-turn-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  margin-top: 7px;
+  padding: 2px 7px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--SmartThemeBlurTintColor) 78%, transparent);
+  color: var(--SmartThemeBodyColor);
+  font: inherit;
+  font-size: 0.78em;
+  cursor: pointer;
+}
+
+.psyche-turn-badge-success {
+  color: #6fca78;
+}
+
+.psyche-turn-badge-attention {
+  color: #e2b75d;
+}
+
+.psyche-turn-badge-danger {
+  color: #ef7777;
+}
+
+.psyche-turn-badge-neutral {
+  color: var(--SmartThemeQuoteColor);
+}
+
+.psyche-status {
+  margin-left: auto;
+  padding: 2px 6px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: 400;
+}
+
+.psyche-status-ready {
+  color: #6fca78;
+}
+
+.psyche-status-busy {
+  color: #e2b75d;
+}
+
+.psyche-status-error {
+  color: #ef7777;
+}
+
+.psyche-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.psyche-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.psyche-field select,
+.psyche-field input,
+.psyche-field textarea {
+  width: 100%;
+  min-width: 0;
+}
+
+.psyche-prompt-settings {
+  margin: 9px 0;
+  border-top: 1px solid var(--SmartThemeBorderColor);
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+}
+
+.psyche-prompt-settings > summary {
+  padding: 9px 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.psyche-prompt-block {
+  display: grid;
+  gap: 7px;
+  padding: 10px 0;
+  border-top: 1px solid var(--SmartThemeBorderColor);
+}
+
+.psyche-prompt-header,
+.psyche-prompt-footer,
+.psyche-prompt-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.psyche-prompt-header,
+.psyche-prompt-footer {
+  justify-content: space-between;
+}
+
+.psyche-prompt-header > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.psyche-prompt-header select {
+  flex: 0 0 150px;
+  width: 150px;
+}
+
+.psyche-prompt-textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 112px;
+  resize: vertical;
+  font-family: var(--monoFontFamily, monospace);
+}
+
+.psyche-prompt-textarea:disabled {
+  min-height: 58px;
+  opacity: 0.55;
+}
+
+.psyche-prompt-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.psyche-prompt-actions .psyche-command-button {
+  min-height: 30px;
+  padding: 3px 7px;
+  font-size: 0.82em;
+}
+
+.psyche-help-text,
+.psyche-prompt-risk,
+.psyche-prompt-warning {
+  font-size: 0.84em;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.psyche-help-text {
+  color: var(--SmartThemeQuoteColor);
+}
+
+.psyche-prompt-risk,
+.psyche-prompt-warning {
+  color: #e2b75d;
+}
+
+.psyche-prompt-warning {
+  margin: 9px 0;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, #e2b75d 65%, var(--SmartThemeBorderColor));
+  border-radius: 4px;
+  background: color-mix(in srgb, #e2b75d 9%, transparent);
+}
+
+@media (max-width: 640px) {
+  .psyche-prompt-header,
+  .psyche-prompt-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .psyche-prompt-header select {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .psyche-prompt-actions {
+    justify-content: flex-start;
+  }
+}
+
+.psyche-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.psyche-manual-editor,
+.psyche-manual-block {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.psyche-manual-block {
+  padding: 6px 0 10px;
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+}
+
+.psyche-manual-block:last-of-type {
+  border-bottom: 0;
+}
+
+.psyche-manual-block h5 {
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.psyche-manual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.psyche-state-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.psyche-state-field-header,
+.psyche-lock-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.psyche-state-field-header > span,
+.psyche-lock-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.psyche-state-field-header .psyche-icon-button,
+.psyche-lock-row .psyche-icon-button {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+}
+
+.psyche-state-field input {
+  width: 100%;
+  min-width: 0;
+}
+
+.psyche-state-field input:disabled {
+  opacity: 0.62;
+}
+
+.psyche-toolbar,
+.psyche-pending-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.psyche-toolbar {
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.psyche-icon-button {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.psyche-command-button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 34px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.psyche-story-identity {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+}
+
+.psyche-tabs {
+  min-width: 0;
+  margin-top: 8px;
+}
+
+.psyche-tab-list {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+  scrollbar-width: thin;
+}
+
+.psyche-tab {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 32px;
+  padding: 4px 9px;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
+  white-space: nowrap;
+  font-size: 0.86em;
+}
+
+.psyche-tab-active {
+  border-bottom-color: var(--SmartThemeQuoteColor);
+  color: var(--SmartThemeQuoteColor);
+}
+
+.psyche-tab-panel {
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.psyche-tab-view,
+.psyche-section {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.psyche-section {
+  padding: 4px 0 8px;
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+}
+
+.psyche-section:last-child {
+  border-bottom: 0;
+}
+
+.psyche-section h4 {
+  margin: 0;
+  font-size: 0.95em;
+}
+
+.psyche-package-warning h4,
+.psyche-package-warning dd:first-of-type {
+  color: #ef7777;
+}
+
+.psyche-backup-confirm {
+  margin: 8px 0;
+  padding: 8px 0;
+}
+
+.psyche-backup-warning,
+.psyche-backup-status {
+  color: #e2b75d;
+  overflow-wrap: anywhere;
+}
+
+.psyche-empty,
+.psyche-history-meta {
+  color: var(--SmartThemeQuoteColor);
+  font-size: 0.84em;
+  overflow-wrap: anywhere;
+}
+
+.psyche-data-list {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+}
+
+.psyche-data-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.38fr) minmax(0, 1fr);
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--SmartThemeBorderColor) 58%, transparent);
+}
+
+.psyche-data-row:last-child {
+  border-bottom: 0;
+}
+
+.psyche-data-row dt {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.psyche-data-row dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.psyche-history-row {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--SmartThemeBorderColor) 58%, transparent);
+}
+
+.psyche-history-row:last-child {
+  border-bottom: 0;
+}
+
+.psyche-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.psyche-history-header strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.psyche-event-controls,
+.psyche-inline-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.psyche-event-controls {
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.psyche-event-controls .psyche-icon-button,
+.psyche-inline-confirm .psyche-icon-button {
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+}
+
+.psyche-inline-confirm {
+  flex-wrap: wrap;
+  padding: 6px 0;
+  border-top: 1px solid color-mix(in srgb, var(--SmartThemeBorderColor) 58%, transparent);
+}
+
+.psyche-inline-confirm > span {
+  flex: 1 1 180px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.psyche-canon-badge {
+  flex: 0 0 auto;
+  padding: 1px 5px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 4px;
+  color: var(--SmartThemeQuoteColor);
+  font-size: 0.78em;
+}
+
+.psyche-violation {
+  padding-left: 7px;
+  border-left: 3px solid var(--SmartThemeBorderColor);
+  font-size: 0.84em;
+  overflow-wrap: anywhere;
+}
+
+.psyche-violation-warning {
+  border-left-color: #e2b75d;
+}
+
+.psyche-violation-error {
+  border-left-color: #ef7777;
+}
+
+.psyche-projection {
+  max-height: 190px;
+  overflow: auto;
+  margin: 8px 0;
+  padding: 8px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  font-size: 0.9em;
+}
+
+.psyche-error {
+  margin: 8px 0;
+  color: #ef7777;
+  white-space: pre-wrap;
+}
+
+.psyche-pending {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.psyche-pending-item {
+  display: grid;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--SmartThemeBorderColor);
+}
+
+.psyche-pending-header,
+.psyche-operation-header,
+.psyche-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.psyche-operation-editor > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.psyche-operation-row {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 4px;
+}
+
+.psyche-operation-json {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  font-family: var(--monoFontFamily, monospace);
+  font-size: 0.85em;
+}
+
+.psyche-operation-json.psyche-invalid {
+  border-color: #ef7777;
+}
+
+.psyche-confidence {
+  color: var(--SmartThemeQuoteColor);
+  font-variant-numeric: tabular-nums;
+}
+
+.psyche-evidence-item {
+  display: grid;
+  gap: 4px;
+  padding-left: 8px;
+  border-left: 3px solid var(--SmartThemeBorderColor);
+  font-size: 0.86em;
+}
+
+.psyche-evidence-item span {
+  color: var(--SmartThemeQuoteColor);
+}
+
+.psyche-editor-footer {
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+.psyche-editor-error {
+  flex: 1;
+  color: #ef7777;
+  white-space: pre-wrap;
+}
+
+.psyche-pending-description {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+
+.psyche-audit-badge {
+  padding: 1px 5px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 4px;
+  font-size: 0.78em;
+}
+
+.psyche-audit-passed {
+  color: #6fca78;
+}
+
+.psyche-audit-warning,
+.psyche-audit-unreviewed {
+  color: #e2b75d;
+}
+
+.psyche-audit-failed,
+.psyche-audit-stale {
+  color: #ef7777;
+}
+
+@media (max-width: 520px) {
+  .psyche-settings-grid,
+  .psyche-state-grid,
+  .psyche-manual-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .psyche-data-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .psyche-history-header {
+    align-items: flex-start;
+  }
+}

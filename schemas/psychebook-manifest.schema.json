@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psyche-timeline.local/schemas/psychebook-manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "format", "story_id", "title", "version"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "format": { "const": "psychebook" },
+    "story_id": { "$ref": "common.schema.json#/$defs/id" },
+    "title": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "entry_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chapter_id", "scene_id"],
+      "properties": {
+        "chapter_id": { "type": "string", "minLength": 1 },
+        "scene_id": { "type": "string", "minLength": 1 },
+        "event_id": { "$ref": "common.schema.json#/$defs/id" }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["character_id"],
+      "properties": {
+        "character_id": { "$ref": "common.schema.json#/$defs/id" },
+        "user_role_id": { "$ref": "common.schema.json#/$defs/id" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "index", "chunks"],
+      "properties": {
+        "schema_version": { "const": 1 },
+        "index": { "const": "source/index.json" },
+        "chunks": { "const": "source/chunks.jsonl" },
+        "analysis": { "const": "source/analysis.jsonl" },
+        "embeddings": { "const": "source/embeddings.jsonl" },
+        "claims": { "const": "source/claims.jsonl" },
+        "compilation": { "const": "source/compilation.jsonl" }
+      }
+    }
+  }
+}

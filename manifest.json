@@ -1,0 +1,12 @@
+{
+  "display_name": "Psyche Timeline Engine",
+  "loading_order": 101,
+  "requires": [],
+  "optional": [],
+  "js": "dist/index.js",
+  "css": "style.css",
+  "auto_update": true,
+  "author": "baixiong443",
+  "version": "0.1.0",
+  "homePage": "https://github.com/baixiong443/psyche-timeline-engine"
+}

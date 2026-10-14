@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "format": "psychebook",
+  "story_id": "rain_ferry_demo",
+  "title": "潮痕驿站",
+  "version": "1.0.0",
+  "entry_point": {
+    "chapter_id": "chapter_01",
+    "scene_id": "scene_01",
+    "event_id": "opened_copper_case"
+  },
+  "bindings": {
+    "character_id": "lin_yan",
+    "user_role_id": "traveler"
+  }
+}

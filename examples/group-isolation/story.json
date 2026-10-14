@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "storyId": "pte_group_isolation_v1",
+  "title": "双角色知识隔离验收",
+  "initialState": {
+    "schemaVersion": 1,
+    "storyId": "pte_group_isolation_v1",
+    "turn": 0,
+    "canonCursor": {
+      "chapterId": "chapter_01",
+      "sceneId": "waiting_hall",
+      "eventOrder": 0
+    },
+    "time": {
+      "absolute": null,
+      "relativeMinutes": 0
+    },
+    "location": {
+      "area": "白潮河下游",
+      "place": "潮痕驿站",
+      "position": "候船厅"
+    },
+    "characters": {
+      "lin_yan": {
+        "present": true,
+        "mood": ["警惕"],
+        "activity": "核对候船厅账册"
+      },
+      "zhou_qi": {
+        "present": true,
+        "mood": ["专注"],
+        "activity": "检查河道信标记录"
+      },
+      "traveler": {
+        "present": true,
+        "mood": ["好奇"],
+        "activity": "等待最后一班渡船"
+      }
+    },
+    "relationships": {},
+    "inventory": {},
+    "facts": {
+      "lin_private_key": {
+        "truth": "候船厅东墙第三块木板后藏着一枚刻有燕尾纹的铜钥匙。",
+        "status": "true",
+        "evidenceRefs": ["fixture:lin-private"]
+      },
+      "zhou_private_signal": {
+        "truth": "河道信标的三短一长表示东闸已经损坏，不能走旧航道。",
+        "status": "true",
+        "evidenceRefs": ["fixture:zhou-private"]
+      },
+      "shared_tide": {
+        "truth": "一小时后的涨潮会淹没驿站外的低岸石阶。",
+        "status": "true",
+        "evidenceRefs": ["fixture:shared"]
+      }
+    },
+    "knowledge": {
+      "lin_yan": {
+        "lin_private_key": {
+          "state": "hiding"
+        },
+        "zhou_private_signal": {
+          "state": "unaware"
+        },
+        "shared_tide": {
+          "state": "knows"
+        }
+      },
+      "zhou_qi": {
+        "lin_private_key": {
+          "state": "unaware"
+        },
+        "zhou_private_signal": {
+          "state": "hiding"
+        },
+        "shared_tide": {
+          "state": "knows"
+        }
+      },
+      "traveler": {
+        "lin_private_key": {
+          "state": "unaware"
+        },
+        "zhou_private_signal": {
+          "state": "unaware"
+        },
+        "shared_tide": {
+          "state": "knows"
+        }
+      }
+    },
+    "flags": {},
+    "canonEvents": {},
+    "narrativePurposes": {},
+    "openThreads": {},
+    "custom": {},
+    "lockedPaths": [
+      "facts.lin_private_key.truth",
+      "facts.zhou_private_signal.truth"
+    ],
+    "divergence": {
+      "structuralLevel": 0,
+      "summary": "群聊知识隔离验收起点。"
+    }
+  },
+  "events": []
+}
