@@ -1,5 +1,6 @@
 import { DEFAULT_MAX_CANDIDATE_EVENTS } from '../constants';
 import type {
+  EventScope,
   ParticipationMode,
   SchedulerCandidate,
   StoryEvent,
@@ -11,6 +12,15 @@ import { evaluateCondition, validateConditionRule } from './conditions';
 const TERMINAL_EVENT_STATES = new Set([
   'completed_canonical', 'completed_adapted', 'skipped', 'invalidated'
 ]);
+
+/**
+ * Resolve an event's scope, treating omitted or unrecognized values as
+ * `interpersonal` so packages written before `scope` existed keep their
+ * original (divergence-sensitive) behaviour.
+ */
+export function eventScope(event: Pick<StoryEvent, 'scope'>): EventScope {
+  return event.scope === 'world' ? 'world' : 'interpersonal';
+}
 
 function rigidityScore(event: StoryEvent, mode: ParticipationMode): number {
   if (mode === 'free') return -10_000;
@@ -34,13 +44,27 @@ function participantScore(event: StoryEvent, projection: StoryProjection): numbe
   return event.participants.reduce((score, id) => score + (projection.characters[id]?.present ? 5 : -2), 0);
 }
 
-function divergenceSuppressesCanon(projection: StoryProjection, mode: ParticipationMode): boolean {
+function divergenceSuppressesCanon(
+  projection: StoryProjection,
+  mode: ParticipationMode,
+  event: StoryEvent
+): boolean {
+  // A world-scale process runs on its own timeline. The branch leaving canon
+  // does not stop a flood, a war or a plague, so divergence must not remove it.
+  if (eventScope(event) === 'world') return false;
   const level = projection.divergence.structuralLevel;
   return (mode === 'parallel' && level >= 0.5)
     || ((mode === 'adaptive' || mode === 'follow') && level >= 0.75);
 }
 
-function divergencePenalty(projection: StoryProjection, mode: ParticipationMode): number {
+function divergencePenalty(
+  projection: StoryProjection,
+  mode: ParticipationMode,
+  event: StoryEvent
+): number {
+  // Same reasoning as `divergenceSuppressesCanon`: a world event must not be
+  // ranked down merely because the branch diverged.
+  if (eventScope(event) === 'world') return 0;
   const multiplier = mode === 'follow' ? 10 : mode === 'adaptive' ? 80 : 120;
   return projection.divergence.structuralLevel * multiplier;
 }
@@ -57,7 +81,7 @@ export function evaluateStoryEvent(
   }
   if (mode === 'free' || event.revealPolicy === 'never') return null;
   if (event.revealPolicy === 'active_only' && storedState !== 'active') return null;
-  if (divergenceSuppressesCanon(projection, mode) && storedState !== 'active') return null;
+  if (divergenceSuppressesCanon(projection, mode, event) && storedState !== 'active') return null;
 
   const preconditionValidation = validateConditionRule(event.preconditions);
   const forbiddenValidation = validateConditionRule(event.forbiddenWhen);
@@ -88,7 +112,7 @@ export function evaluateStoryEvent(
     + participantScore(event, projection)
     + proximityScore
     + pendingPurposeCount * 6
-    - divergencePenalty(projection, mode);
+    - divergencePenalty(projection, mode, event);
 
   return {
     event,

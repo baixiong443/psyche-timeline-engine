@@ -75,6 +75,17 @@ function normalizeEventRigidity(value: unknown): unknown {
   return value;
 }
 
+function normalizeEventScope(value: unknown): unknown {
+  const scope = String(value ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const aliases: Record<string, 'world' | 'interpersonal'> = {
+    world: 'world', global: 'world', world_scale: 'world', worldscale: 'world',
+    environmental: 'world', disaster: 'world', ambient: 'world',
+    interpersonal: 'interpersonal', character: 'interpersonal', personal: 'interpersonal',
+    relationship: 'interpersonal', social: 'interpersonal'
+  };
+  return aliases[scope] ?? value;
+}
+
 function normalizeSourceEffect(value: unknown): unknown {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
   const source = structuredClone(value) as Record<string, unknown>;
@@ -132,6 +143,8 @@ export function normalizeSourceWindowWire(value: unknown): unknown {
         canonicalOrder: Number(firstDefined(event, ['canonicalOrder', 'canonical_order', 'order'])),
         kind: normalizeEventKind(firstDefined(event, ['kind', 'eventKind', 'event_kind', 'eventType', 'event_type'])),
         rigidity: normalizeEventRigidity(firstDefined(event, ['rigidity', 'eventRigidity', 'event_rigidity'])),
+        ...(firstDefined(event, ['scope', 'eventScope', 'event_scope']) !== undefined
+          ? { scope: normalizeEventScope(firstDefined(event, ['scope', 'eventScope', 'event_scope'])) } : {}),
         summary: firstDefined(event, ['summary', 'description', 'eventSummary', 'event_summary']),
         participants: normalizeStringArray(firstDefined(event, ['participants', 'participantIds', 'participant_ids'])),
         ...(firstDefined(event, ['preconditions', 'precondition']) !== undefined
@@ -183,6 +196,7 @@ function sourceWindowSchema(unit: StorySourceAnalysisUnit, projection: StoryProj
               canonicalOrder: { type: 'integer', minimum: projection.canonCursor.eventOrder + 1 },
               kind: { enum: ['hard_anchor', 'soft_anchor', 'character_beat', 'transition', 'atmosphere', 'chance'] },
               rigidity: { enum: ['hard', 'soft', 'flexible'] },
+              scope: { enum: ['world', 'interpersonal'] },
               summary: { type: 'string', minLength: 1, maxLength: 1200 },
               participants: { type: 'array', items: { type: 'string' }, maxItems: 20 },
               effects: { type: 'array', items: operation, maxItems: 20 },
@@ -218,6 +232,7 @@ function sourceEventExample(projection: StoryProjection, unit: StorySourceAnalys
     canonicalOrder: projection.canonCursor.eventOrder + 1,
     kind: 'character_beat',
     rigidity: 'flexible',
+    scope: 'interpersonal',
     summary: '这里只写有原文证据支持、尚未向角色泄露未来结果的事件摘要。',
     participants: [],
     effects: [],
@@ -267,6 +282,8 @@ export function buildSourceWindowCompilationPrompt(
     `- effects 只描述事件真正发生后才应用的变化，不得使用 transition_canon_event。\n` +
     `- effects 无法从原文安全确定时必须写 []；需要变化时使用 {"id","type","confidence","evidenceIds","args"} 协议，业务参数全部放入 args。\n` +
     `- preconditions/forbiddenWhen 用当前状态可验证字段；无法安全执行时宁可减少事件。\n` +
+    `- scope 标明事件属于谁：世界级进程（天灾、战争、瘟疫、政权更迭）用 "world"；由角色行为与关系驱动的事件用 "interpersonal"。\n` +
+    `- scope=world 的事件不会因为剧情分歧被自动放弃，所以必须用它真正的前因写 forbiddenWhen（例如堤坝已修复、敌军已被歼灭），不能用分歧度代替因果。\n` +
     `- revealPolicy 默认 eligible_only；秘密信息在条件满足前不能出现在事件摘要。\n` +
     `- 保留原作叙事目的，但允许 delay/relocation/substitution 必须按事件性质分别判断。\n` +
     `${feedback ? `\n上一版校验错误，必须修复：\n${feedback}\n` : ''}` +

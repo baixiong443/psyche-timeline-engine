@@ -20,6 +20,18 @@ export type KnowledgeState = 'knows' | 'suspects' | 'believes_false' | 'unaware'
 export type FactTruthStatus = 'true' | 'false' | 'unknown';
 export type EventKind = 'hard_anchor' | 'soft_anchor' | 'character_beat' | 'transition' | 'atmosphere' | 'chance';
 export type EventRigidity = 'hard' | 'soft' | 'flexible';
+/**
+ * Which part of the story an event belongs to.
+ *
+ * - `interpersonal` (default): driven by character behaviour and relationships,
+ *   so a diverged branch can legitimately change or cancel it.
+ * - `world`: a world-scale process (natural disaster, war, plague, regime
+ *   change) that unfolds on its own timeline. It is intentionally immune to
+ *   branch divergence, because the player leaving canon does not stop it.
+ *
+ * Omitted means `interpersonal`, which keeps every pre-`scope` package valid.
+ */
+export type EventScope = 'world' | 'interpersonal';
 
 export interface StoryLocation {
   area: string;
@@ -132,6 +144,8 @@ export interface StoryEvent {
   canonicalOrder: number;
   kind: EventKind;
   rigidity: EventRigidity;
+  /** Defaults to `interpersonal` when omitted or unknown. */
+  scope?: EventScope;
   summary: string;
   participants: string[];
   preconditions?: JsonLogicRule;

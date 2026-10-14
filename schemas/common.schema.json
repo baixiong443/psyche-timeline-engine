@@ -259,6 +259,7 @@
         "canonicalOrder": { "type": "integer", "minimum": 0 },
         "kind": { "enum": ["hard_anchor", "soft_anchor", "character_beat", "transition", "atmosphere", "chance"] },
         "rigidity": { "enum": ["hard", "soft", "flexible"] },
+        "scope": { "enum": ["world", "interpersonal"] },
         "summary": { "type": "string" },
         "participants": { "type": "array", "items": { "$ref": "#/$defs/id" } },
         "preconditions": { "$ref": "#/$defs/jsonValue" },
