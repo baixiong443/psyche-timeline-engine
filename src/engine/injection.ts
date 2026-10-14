@@ -170,9 +170,10 @@ export function buildRuntimeInjection(options: BuildInjectionOptions): string {
   }
 
   if (candidates.length > 0) {
-    lines.push('Nearby canon anchors that are still causally possible:');
+    lines.push('Imminent canon anchors that are still causally possible:');
     for (const candidate of candidates) {
-      lines.push(`- ${candidate.event.summary}`);
+      const scope = candidate.event.scope === 'world' ? ' [world-scale process]' : '';
+      lines.push(`- ${candidate.event.summary}${scope}`);
       if (candidate.event.narrativePurposes.length > 0) {
         lines.push(`  Narrative purpose: ${candidate.event.narrativePurposes.join(', ')}`);
       }

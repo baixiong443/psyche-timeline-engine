@@ -1,4 +1,4 @@
-import { DEFAULT_MAX_CANDIDATE_EVENTS } from '../constants';
+import { DEFAULT_CANON_LOOKAHEAD, DEFAULT_MAX_CANDIDATE_EVENTS } from '../constants';
 import type {
   EventScope,
   ParticipationMode,
@@ -72,7 +72,8 @@ function divergencePenalty(
 export function evaluateStoryEvent(
   event: StoryEvent,
   projection: StoryProjection,
-  mode: ParticipationMode
+  mode: ParticipationMode,
+  lookahead = DEFAULT_CANON_LOOKAHEAD
 ): SchedulerCandidate | null {
   const storedState = projection.canonEvents[event.id];
   if (storedState && TERMINAL_EVENT_STATES.has(storedState)) return null;
@@ -103,6 +104,13 @@ export function evaluateStoryEvent(
   }
 
   const distance = Math.max(0, event.canonicalOrder - projection.canonCursor.eventOrder);
+
+  // Imminence is a gate, not a weight. Base scores (a follow-mode hard anchor is
+  // 90) exceed the entire 80-point proximity range, so a distant anchor would
+  // otherwise outrank the next beat. Causal checks above still ran, so an event
+  // whose cause was removed is still reported as invalidated rather than hidden.
+  if (distance > lookahead) return null;
+
   const proximityScore = Math.max(-40, 40 - distance * 2);
   const pendingPurposeCount = event.narrativePurposes.filter(
     id => (projection.narrativePurposes[id] ?? 'pending') === 'pending'
@@ -130,11 +138,13 @@ export function scheduleStoryEvents(
   plan: StoryPlan,
   projection: StoryProjection,
   mode: ParticipationMode,
-  limit = DEFAULT_MAX_CANDIDATE_EVENTS
+  limit = DEFAULT_MAX_CANDIDATE_EVENTS,
+  lookahead = DEFAULT_CANON_LOOKAHEAD
 ): SchedulerCandidate[] {
   const safeLimit = Math.max(0, Math.min(10, Math.trunc(limit)));
+  const safeLookahead = Math.max(0, Math.trunc(lookahead));
   return plan.events
-    .map(event => evaluateStoryEvent(event, projection, mode))
+    .map(event => evaluateStoryEvent(event, projection, mode, safeLookahead))
     .filter((candidate): candidate is SchedulerCandidate => candidate?.state === 'eligible')
     .sort((left, right) => right.score - left.score || left.event.canonicalOrder - right.event.canonicalOrder)
     .slice(0, safeLimit);

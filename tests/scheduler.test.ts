@@ -116,4 +116,62 @@ describe('canon scheduler', () => {
     expect(scheduleStoryEvents(plan, projection, 'parallel')).toEqual([]);
     expect(findInvalidatedEvents(plan, projection, 'parallel').map(item => item.event.id)).toEqual(['great-flood']);
   });
+
+  it('never offers events beyond the canon lookahead window', () => {
+    const near = storyEvent({ id: 'near', canonicalOrder: 20 });
+    const edge = storyEvent({ id: 'edge', canonicalOrder: 25 });
+    const beyond = storyEvent({ id: 'beyond', canonicalOrder: 26 });
+    const plan = storyPlan([near, edge, beyond]);
+    const projection = createEmptyProjection('story-1');
+
+    expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id).sort())
+      .toEqual(['edge', 'near']);
+
+    // An explicit window keeps the behaviour inspectable.
+    expect(scheduleStoryEvents(plan, projection, 'follow', 10, 30).map(item => item.event.id).sort())
+      .toEqual(['beyond', 'edge', 'near']);
+    expect(scheduleStoryEvents(plan, projection, 'follow', 10, 0)).toEqual([]);
+  });
+
+  it('gates distant anchors out of the window instead of reordering them', () => {
+    // The lookahead is an eligibility gate, not a re-ranker. Within the window
+    // base scores still dominate (a follow-mode hard anchor scores 80 against
+    // 74 for a nearby flexible beat), which is acceptable because injection
+    // emits every candidate, not just the top one. What matters is that the
+    // 200-orders-away spoiler never becomes a candidate at all.
+    const nextBeat = storyEvent({
+      id: 'next-beat', canonicalOrder: 1, kind: 'character_beat', rigidity: 'flexible'
+    });
+    const anchorInWindow = storyEvent({
+      id: 'anchor-in-window', canonicalOrder: 25, kind: 'hard_anchor', rigidity: 'hard'
+    });
+    const anchorBeyond = storyEvent({
+      id: 'anchor-beyond', canonicalOrder: 26, kind: 'hard_anchor', rigidity: 'hard'
+    });
+    const plan = storyPlan([nextBeat, anchorInWindow, anchorBeyond]);
+    const projection = createEmptyProjection('story-1');
+
+    // Both in-window events stay available regardless of their relative order.
+    expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id).sort())
+      .toEqual(['anchor-in-window', 'next-beat']);
+
+    // The next beat is still reachable as a candidate, so imminence is not lost.
+    expect(scheduleStoryEvents(plan, projection, 'follow')).toHaveLength(2);
+
+    // Advancing the cursor by one admits the anchor that was just out of reach.
+    projection.canonCursor.eventOrder = 1;
+    expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id).sort())
+      .toEqual(['anchor-beyond', 'anchor-in-window', 'next-beat']);
+  });
+
+  it('applies the lookahead window to world events too', () => {
+    // World immunity is about divergence, not about spoiler distance.
+    const farFlood = storyEvent({ id: 'far-flood', scope: 'world', canonicalOrder: 200 });
+    const plan = storyPlan([farFlood]);
+    const projection = createEmptyProjection('story-1');
+
+    expect(scheduleStoryEvents(plan, projection, 'follow')).toEqual([]);
+    projection.canonCursor.eventOrder = 190;
+    expect(scheduleStoryEvents(plan, projection, 'follow').map(item => item.event.id)).toEqual(['far-flood']);
+  });
 });
